@@ -1,17 +1,19 @@
 import pandas as pd
+import numpy as np
 import re
-import nltk
-import os
 import joblib
-from nltk.corpus import stopwords
+import os  # 👈 NEW: to create folders if not exist
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import nltk
+from nltk.corpus import stopwords
 
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
-# Load data
+# Load and merge dataset
 fake = pd.read_csv('data/Fake.csv')
 real = pd.read_csv('data/True.csv')
 fake['label'] = 0
@@ -35,15 +37,15 @@ vectorizer = TfidfVectorizer(max_features=5000)
 X_train_vec = vectorizer.fit_transform(X_train)
 X_test_vec = vectorizer.transform(X_test)
 
-# Model training
+# Model
 model = LogisticRegression()
 model.fit(X_train_vec, y_train)
 
 # Accuracy
-accuracy = model.score(X_test_vec, y_test)
-print(f"Accuracy: {accuracy}")
+pred = model.predict(X_test_vec)
+print("Accuracy:", accuracy_score(y_test, pred))
 
-# ✅ Ensure 'models' folder exists
+# 👇 NEW: Ensure models folder exists before saving
 os.makedirs('models', exist_ok=True)
 
 # Save model and vectorizer
